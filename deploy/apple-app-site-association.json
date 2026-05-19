@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.io.zettair.app"],
+        "components": [
+          { "/": "/", "?": { "q": "?*" } },
+          { "/": "/search", "?": { "q": "?*" } }
+        ]
+      }
+    ]
+  }
+}

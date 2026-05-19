@@ -16,7 +16,6 @@ final class SearchViewModel: ObservableObject {
     @Published var lastQuery: String? = nil
     @Published var trending: TrendingResponse? = nil
     @Published private(set) var allSuggestions: [Suggestion] = []
-    @Published var presentedSafariURL: URL? = nil
 
     private var suggestTask: Task<Void, Never>? = nil
 
@@ -68,11 +67,6 @@ final class SearchViewModel: ObservableObject {
         } catch {
             // Quietly leave nil; home view hides the rail when empty.
         }
-    }
-
-    func openExternalArticle(_ result: SearchResult) {
-        guard let url = URL(string: result.url) else { return }
-        presentedSafariURL = url
     }
 
     private func humanError(_ err: ZettairAPIError) -> String {

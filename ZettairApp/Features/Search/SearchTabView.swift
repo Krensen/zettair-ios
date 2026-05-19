@@ -18,13 +18,16 @@ struct SearchTabView: View {
             .searchable(text: $draft, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Wikipedia")
             .focused($searchFocused)
             .onSubmit(of: .search) { runSearch() }
-            .onChange(of: draft) { _, newValue in
+            .onChange(of: draft) { newValue in
                 Task { await viewModel.updateSuggestions(for: newValue, api: environment.api) }
             }
-            .onChange(of: router.pendingQuery) { _, q in
+            .onChange(of: router.pendingQuery) { q in
                 if let q { applyPending(q) }
             }
-            .task { await viewModel.loadTrending(api: environment.api) }
+            .task {
+                await viewModel.loadTrending(api: environment.api)
+                await SpotlightIndexer.shared.ensureSeeded(api: environment.api)
+            }
             .refreshable { await viewModel.loadTrending(api: environment.api) }
         }
     }
@@ -60,7 +63,6 @@ struct SearchTabView: View {
                                                               docno: result.docno,
                                                               rank: result.rank,
                                                               score: result.score)) }
-                    viewModel.openExternalArticle(result)
                 },
                 onTapRelated: { item in
                     draft = item.title
@@ -77,6 +79,8 @@ struct SearchTabView: View {
         guard !q.isEmpty else { return }
         searchFocused = false
         environment.savedStore.pushHistory(q)
+        IntentDonations.donate(query: q)
+        SpotlightIndexer.shared.indexUserQuery(q)
         Task { await viewModel.runSearch(q, api: environment.api) }
     }
 

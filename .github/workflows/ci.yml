@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  kit-tests:
+    name: ZettairKit unit tests
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Run package tests
+        working-directory: ZettairKit
+        run: swift test
+
+  xcode-build:
+    name: Xcode build (Debug, iOS simulator)
+    runs-on: macos-14
+    needs: kit-tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen
+      - name: Build app target
+        run: |
+          xcodebuild \
+            -project Zettair.xcodeproj \
+            -scheme ZettairApp \
+            -configuration Debug \
+            -destination "generic/platform=iOS Simulator" \
+            -quiet \
+            CODE_SIGNING_ALLOWED=NO \
+            build

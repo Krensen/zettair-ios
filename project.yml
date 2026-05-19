@@ -37,8 +37,6 @@ targets:
         embed: true
       - target: ZettairShare
         embed: true
-      - target: ZettairIntents
-        embed: true
     info:
       path: ZettairApp/Info.plist
       properties:
@@ -112,26 +110,6 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.zettair.app.share
         CODE_SIGN_ENTITLEMENTS: ZettairShare/ZettairShare.entitlements
-        CODE_SIGN_STYLE: Automatic
-
-  # ---------------- Intents extension ----------------
-  ZettairIntents:
-    type: app-extension
-    platform: iOS
-    sources:
-      - path: ZettairIntents
-    dependencies:
-      - package: ZettairKit
-    info:
-      path: ZettairIntents/Info.plist
-      properties:
-        CFBundleDisplayName: Zettair
-        NSExtension:
-          NSExtensionPointIdentifier: com.apple.appintents-extension
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.zettair.app.intents
-        CODE_SIGN_ENTITLEMENTS: ZettairIntents/ZettairIntents.entitlements
         CODE_SIGN_STYLE: Automatic
 
 schemes:

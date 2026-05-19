@@ -19,18 +19,31 @@ struct HomeView: View {
                     TrendingRailView(response: t, onTap: onTapTrending)
                 }
                 if suggestions.isEmpty && (trending?.items.isEmpty ?? true) {
-                    Spacer(minLength: 80)
-                    ContentUnavailableView(
-                        "Search Wikipedia",
-                        systemImage: "magnifyingglass",
-                        description: Text("Start typing to search 1.5M articles.")
-                    )
-                    .frame(maxWidth: .infinity)
+                    EmptyHomeView()
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 80)
                 }
             }
             .padding(.horizontal)
             .padding(.top, 8)
         }
+    }
+}
+
+private struct EmptyHomeView: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 36))
+                .foregroundStyle(.secondary)
+            Text("Search Wikipedia")
+                .font(.headline)
+            Text("Start typing to search 1.5M articles.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.horizontal, 32)
     }
 }
 
