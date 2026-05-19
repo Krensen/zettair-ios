@@ -1,0 +1,8 @@
+{
+  "mode": "spike",
+  "generated_at": "2026-05-19T12:00:00Z",
+  "items": [
+    {"query": "mark carney", "title": "Mark Carney", "in_index": true, "source": "spike"},
+    {"query": "fresh news article 2026", "title": "Fresh News Article 2026", "in_index": false, "source": "google", "wiki_url": "https://en.wikipedia.org/wiki/Fresh_News_Article_2026"}
+  ]
+}

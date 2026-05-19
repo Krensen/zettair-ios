@@ -1,0 +1,8 @@
+{
+  "q": "ein",
+  "suggestions": [
+    {"query": "einstein", "count": 4810},
+    {"query": "einsteinium", "count": 312},
+    {"query": "einstein on the beach", "count": 21}
+  ]
+}
