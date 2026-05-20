@@ -20,7 +20,7 @@ struct ResultsView: View {
                         markdown: summary,
                         kind: response.summaryKind ?? .biographical,
                         eventDate: response.eventDate,
-                        imageURL: response.results.first.flatMap { $0.imageURL.flatMap(URL.init) }
+                        imageURL: response.results.first?.imageURL.flatMap { ImageProxy.url(for: $0) }
                     )
                 }
                 ForEach(response.results) { result in

@@ -25,7 +25,7 @@ struct ResultRow: View {
                         .lineLimit(3)
                     pills
                 }
-                if let s = result.imageURL, let url = URL(string: s) {
+                if let s = result.imageURL, let url = ImageProxy.url(for: s) {
                     Thumbnail(url: url)
                 }
             }
