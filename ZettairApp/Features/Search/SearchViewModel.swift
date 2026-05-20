@@ -17,6 +17,18 @@ final class SearchViewModel: ObservableObject {
     @Published var trending: TrendingResponse? = nil
     @Published private(set) var allSuggestions: [Suggestion] = []
 
+    var isShowingResults: Bool {
+        if case .results = state { return true }
+        if case .loading = state { return true }
+        return false
+    }
+
+    func resetToHome() {
+        state = .idle
+        lastQuery = nil
+        allSuggestions = []
+    }
+
     private var suggestTask: Task<Void, Never>? = nil
 
     func suggestions(for draft: String) -> [Suggestion] {

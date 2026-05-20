@@ -13,9 +13,11 @@ struct SearchTabView: View {
             ZStack {
                 contentLayer
             }
-            .navigationTitle("Zettair")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $draft, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Wikipedia")
+            .toolbar { toolbar }
+            .toolbarBackground(.visible, for: .navigationBar)
+            .searchable(text: $draft,
+                         placement: .navigationBarDrawer(displayMode: .always),
+                         prompt: "Search Wikipedia")
             .focused($searchFocused)
             .onSubmit(of: .search) { runSearch() }
             .onChange(of: draft) { newValue in
@@ -32,28 +34,45 @@ struct SearchTabView: View {
         }
     }
 
+    @ToolbarContentBuilder
+    private var toolbar: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            if viewModel.isShowingResults {
+                Button(action: goHome) {
+                    ZettairSmallLogo()
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Back to home")
+            } else {
+                // Blank when on home — the hero is in the content area.
+                EmptyView()
+            }
+        }
+    }
+
     @ViewBuilder
     private var contentLayer: some View {
         switch viewModel.state {
         case .idle:
-            HomeView(
-                trending: viewModel.trending,
-                suggestions: viewModel.suggestions(for: draft),
-                onTapTrending: { item in
-                    if item.inIndex {
-                        draft = item.query
+            if draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                HomeView(
+                    trending: viewModel.trending,
+                    onTapTrending: handleTrendingTap
+                )
+            } else {
+                SuggestionsView(
+                    suggestions: viewModel.allSuggestions,
+                    onTapSuggestion: { s in
+                        draft = s.query
                         runSearch()
-                    } else if let s = item.wikiURL, let url = URL(string: s) {
-                        UIApplication.shared.open(url)
                     }
-                },
-                onTapSuggestion: { s in
-                    draft = s.query
-                    runSearch()
-                }
-            )
+                )
+            }
         case .loading:
-            ProgressView().controlSize(.large)
+            VStack(spacing: 12) {
+                ProgressView().controlSize(.large)
+                Text("Searching…").font(.footnote).foregroundStyle(.secondary)
+            }
         case .results(let response):
             ResultsView(
                 response: response,
@@ -88,5 +107,21 @@ struct SearchTabView: View {
         draft = q
         router.pendingQuery = nil
         runSearch()
+    }
+
+    private func goHome() {
+        Haptics.tap()
+        draft = ""
+        searchFocused = false
+        viewModel.resetToHome()
+    }
+
+    private func handleTrendingTap(_ item: TrendingItem) {
+        if item.inIndex {
+            draft = item.query
+            runSearch()
+        } else if let s = item.wikiURL, let url = URL(string: s) {
+            UIApplication.shared.open(url)
+        }
     }
 }
