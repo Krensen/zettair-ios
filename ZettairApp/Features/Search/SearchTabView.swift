@@ -7,6 +7,7 @@ struct SearchTabView: View {
     @StateObject private var viewModel = SearchViewModel()
     @State private var draft: String = ""
     @FocusState private var searchFocused: Bool
+    @Namespace private var logoAnimation
 
     var body: some View {
         NavigationStack {
@@ -26,6 +27,11 @@ struct SearchTabView: View {
             .onChange(of: router.pendingQuery) { q in
                 if let q { applyPending(q) }
             }
+            .onChange(of: router.searchHomeRequest) { _ in
+                if viewModel.isShowingResults || !draft.isEmpty {
+                    goHome()
+                }
+            }
             .task {
                 await viewModel.loadTrending(api: environment.api)
                 await SpotlightIndexer.shared.ensureSeeded(api: environment.api)
@@ -39,12 +45,11 @@ struct SearchTabView: View {
         ToolbarItem(placement: .principal) {
             if viewModel.isShowingResults {
                 Button(action: goHome) {
-                    ZettairSmallLogo()
+                    ZettairSmallLogo(namespace: logoAnimation)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Back to home")
             } else {
-                // Blank when on home — the hero is in the content area.
                 EmptyView()
             }
         }
@@ -57,8 +62,10 @@ struct SearchTabView: View {
             if draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 HomeView(
                     trending: viewModel.trending,
-                    onTapTrending: handleTrendingTap
+                    onTapTrending: handleTrendingTap,
+                    logoNamespace: logoAnimation
                 )
+                .transition(.opacity)
             } else {
                 SuggestionsView(
                     suggestions: viewModel.allSuggestions,
@@ -67,6 +74,7 @@ struct SearchTabView: View {
                         runSearch()
                     }
                 )
+                .transition(.opacity)
             }
         case .loading:
             VStack(spacing: 12) {
@@ -88,6 +96,7 @@ struct SearchTabView: View {
                     runSearch()
                 }
             )
+            .transition(.opacity)
         case .error(let message):
             ErrorView(message: message) { runSearch() }
         }
@@ -100,7 +109,9 @@ struct SearchTabView: View {
         environment.savedStore.pushHistory(q)
         IntentDonations.donate(query: q)
         SpotlightIndexer.shared.indexUserQuery(q)
-        Task { await viewModel.runSearch(q, api: environment.api) }
+        Task {
+            await viewModel.runSearch(q, api: environment.api)
+        }
     }
 
     private func applyPending(_ q: String) {
@@ -111,9 +122,11 @@ struct SearchTabView: View {
 
     private func goHome() {
         Haptics.tap()
-        draft = ""
         searchFocused = false
-        viewModel.resetToHome()
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+            draft = ""
+            viewModel.resetToHome()
+        }
     }
 
     private func handleTrendingTap(_ item: TrendingItem) {

@@ -6,12 +6,13 @@ import ZettairKit
 struct HomeView: View {
     let trending: TrendingResponse?
     let onTapTrending: (TrendingItem) -> Void
+    let logoNamespace: Namespace.ID
 
     var body: some View {
         ScrollView {
             VStack(spacing: 28) {
                 Spacer(minLength: 60)
-                ZettairHero()
+                ZettairHero(namespace: logoNamespace)
                 Text("Search 1.5M Wikipedia articles")
                     .font(.footnote)
                     .foregroundStyle(.secondary)

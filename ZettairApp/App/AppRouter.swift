@@ -9,6 +9,10 @@ final class AppRouter: ObservableObject {
 
     @Published var tab: Tab = .search
     @Published var pendingQuery: String? = nil
+    /// Increments each time the user re-taps the Search tab while already on
+    /// it. Search tab observes this and resets to home — the universal iOS
+    /// "tab re-tap returns to root" idiom.
+    @Published var searchHomeRequest: Int = 0
 
     /// Handle inbound `zettair://search?q=...` or `https://zettair.io/?q=...`.
     func handle(url: URL) {

@@ -14,32 +14,47 @@ enum BrandStripe {
     ]
 }
 
+/// Shared geometry ids so matchedGeometryEffect can morph the big home logo
+/// into the small nav-bar logo and back.
+private enum LogoGeoID {
+    static let wordmark = "zettair.logo.wordmark"
+    static let stripe   = "zettair.logo.stripe"
+}
+
 /// The big homepage wordmark + stripe.
 struct ZettairHero: View {
+    let namespace: Namespace.ID
+
     var body: some View {
         VStack(spacing: 14) {
             Text("Zettair")
                 .font(.custom("Georgia-Italic", size: 64))
                 .foregroundStyle(Color.primary)
                 .tracking(-2)
+                .matchedGeometryEffect(id: LogoGeoID.wordmark, in: namespace)
                 .accessibilityAddTraits(.isHeader)
             BrandStripeView()
                 .frame(width: 280, height: 4)
+                .matchedGeometryEffect(id: LogoGeoID.stripe, in: namespace)
         }
     }
 }
 
-/// The small wordmark + stripe used as a "go home" button at the top of the
-/// results view. Mirrors .logo-small / .logo-small-stripe from index.html.
+/// The small wordmark + stripe used as a "back to home" button at the top of
+/// the results view. Mirrors .logo-small / .logo-small-stripe from index.html.
 struct ZettairSmallLogo: View {
+    let namespace: Namespace.ID
+
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 3) {
             Text("Zettair")
-                .font(.custom("Georgia-Italic", size: 22))
+                .font(.custom("Georgia-Italic", size: 19))
                 .foregroundStyle(Color.primary)
                 .tracking(-0.5)
+                .matchedGeometryEffect(id: LogoGeoID.wordmark, in: namespace)
             BrandStripeView()
-                .frame(width: 90, height: 2.5)
+                .frame(width: 78, height: 2.5)
+                .matchedGeometryEffect(id: LogoGeoID.stripe, in: namespace)
         }
     }
 }
