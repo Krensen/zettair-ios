@@ -32,18 +32,34 @@ final class ShareViewController: UIViewController {
         for item in items {
             for provider in (item.attachments ?? []) {
                 if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                    if let url = try? await provider.loadItem(forTypeIdentifier: UTType.url.identifier) as? URL {
+                    if let url = await loadURL(from: provider) {
                         return url.lastPathComponent.replacingOccurrences(of: "_", with: " ")
                     }
                 }
                 if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                    if let text = try? await provider.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String {
+                    if let text = await loadText(from: provider) {
                         return text
                     }
                 }
             }
         }
         return nil
+    }
+
+    private func loadURL(from provider: NSItemProvider) async -> URL? {
+        await withCheckedContinuation { cont in
+            provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { value, _ in
+                cont.resume(returning: value as? URL)
+            }
+        }
+    }
+
+    private func loadText(from provider: NSItemProvider) async -> String? {
+        await withCheckedContinuation { cont in
+            provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { value, _ in
+                cont.resume(returning: value as? String)
+            }
+        }
     }
 
     /// Open a URL from an extension. UIApplication.open is unavailable in

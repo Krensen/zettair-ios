@@ -76,7 +76,7 @@ struct TrendingWidgetView: View {
             Spacer(minLength: 0)
         }
         .padding(8)
-        .containerBackground(for: .widget) { Color(.systemBackground) }
+        .widgetBackgroundCompat()
     }
 
     private var maxItems: Int {
@@ -85,6 +85,19 @@ struct TrendingWidgetView: View {
         case .systemMedium: return 3
         case .systemLarge:  return 6
         default:            return 3
+        }
+    }
+}
+
+private extension View {
+    /// iOS 17+ requires `.containerBackground(for: .widget)`; iOS 16 doesn't
+    /// support it. Use the modifier conditionally.
+    @ViewBuilder
+    func widgetBackgroundCompat() -> some View {
+        if #available(iOS 17.0, *) {
+            self.containerBackground(for: .widget) { Color(.systemBackground) }
+        } else {
+            self.background(Color(.systemBackground))
         }
     }
 }
