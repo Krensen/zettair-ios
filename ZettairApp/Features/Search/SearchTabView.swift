@@ -34,7 +34,6 @@ struct SearchTabView: View {
             }
             .task {
                 await viewModel.loadTrending(api: environment.api)
-                await SpotlightIndexer.shared.ensureSeeded(api: environment.api)
             }
             .refreshable { await viewModel.loadTrending(api: environment.api) }
         }
@@ -109,9 +108,13 @@ struct SearchTabView: View {
         environment.savedStore.pushHistory(q)
         IntentDonations.donate(query: q)
         SpotlightIndexer.shared.indexUserQuery(q)
-        Task {
-            await viewModel.runSearch(q, api: environment.api)
+        // Kick off the (~24-call) Spotlight seed sweep in the background after
+        // the user's first real search — never blocks the search itself, and
+        // never fires during cold launch. ensureSeeded is idempotent.
+        Task.detached(priority: .background) {
+            await SpotlightIndexer.shared.ensureSeeded(api: environment.api)
         }
+        Task { await viewModel.runSearch(q, api: environment.api) }
     }
 
     private func applyPending(_ q: String) {
