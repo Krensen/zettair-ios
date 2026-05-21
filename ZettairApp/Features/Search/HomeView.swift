@@ -17,8 +17,8 @@ struct HomeView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                 if let t = trending, !t.items.isEmpty {
-                    TrendingRailView(response: t, onTap: onTapTrending)
-                        .padding(.top, 16)
+                    TrendingListView(response: t, onTap: onTapTrending)
+                        .padding(.top, 12)
                         .padding(.horizontal)
                 }
                 Spacer(minLength: 40)
