@@ -61,6 +61,7 @@ struct SearchTabView: View {
             if draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 HomeView(
                     trending: viewModel.trending,
+                    trendingThumbs: viewModel.trendingThumbs,
                     onTapTrending: handleTrendingTap,
                     logoNamespace: logoAnimation
                 )

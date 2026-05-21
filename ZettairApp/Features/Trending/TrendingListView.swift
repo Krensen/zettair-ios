@@ -5,10 +5,12 @@ import ZettairKit
 /// iPhones have plenty of vertical real estate below the hero; a list uses
 /// it for scannability instead of cramming 6 truncated chips into one row.
 ///
-/// Each row: a coloured "letter tile" stand-in for an image (we don't have
-/// per-item thumbnails in /api/trending), the title, and a source pill.
+/// Thumbnails are fetched via /search?q=<query>&n=1 in SearchViewModel and
+/// passed in keyed by query. While a thumbnail is loading or missing, we
+/// fall back to a branded letter tile.
 struct TrendingListView: View {
     let response: TrendingResponse
+    let thumbs: [String: URL]
     let onTap: (TrendingItem) -> Void
 
     var body: some View {
@@ -20,7 +22,7 @@ struct TrendingListView: View {
                         Haptics.tap()
                         onTap(item)
                     }) {
-                        TrendingRow(item: item)
+                        TrendingRow(item: item, thumb: thumbs[item.query])
                             .padding(.vertical, 12)
                             .padding(.horizontal, 14)
                             .contentShape(Rectangle())
@@ -51,10 +53,11 @@ struct TrendingListView: View {
 
 private struct TrendingRow: View {
     let item: TrendingItem
+    let thumb: URL?
 
     var body: some View {
         HStack(spacing: 14) {
-            LetterTile(title: item.title)
+            ThumbnailOrTile(title: item.title, url: thumb)
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
                     .font(.body)
@@ -91,6 +94,38 @@ private struct TrendingRow: View {
     }
 }
 
+/// Tries to load a real thumbnail; falls back to a letter tile while loading
+/// or on failure. The letter-tile fallback also stays put if the search has
+/// no image_url (we'll never know, but the visual is consistent).
+private struct ThumbnailOrTile: View {
+    let title: String
+    let url: URL?
+
+    var body: some View {
+        if let url {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 56, height: 56)
+                        .clipped()
+                case .failure:
+                    LetterTile(title: title)
+                case .empty:
+                    LetterTile(title: title)
+                @unknown default:
+                    LetterTile(title: title)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        } else {
+            LetterTile(title: title)
+        }
+    }
+}
+
 /// 56×56 coloured tile with the first 1–2 letters of the title in italic
 /// Georgia (brand-consistent). Colour is stable per title via a hash so the
 /// same article always gets the same colour.
@@ -119,7 +154,6 @@ private struct LetterTile: View {
     }
 
     private var color: Color {
-        // Stable colour per title from the same palette as the brand stripe.
         let h = abs(title.hashValue)
         return BrandStripe.colors[h % BrandStripe.colors.count]
     }

@@ -70,12 +70,24 @@ private struct Thumbnail: View {
         AsyncImage(url: url) { phase in
             switch phase {
             case .success(let image):
-                image.resizable().aspectRatio(contentMode: .fill)
-            default:
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 64, height: 64)
+                    .clipped()
+            case .failure:
                 Color.secondary.opacity(0.15)
+                    .frame(width: 64, height: 64)
+                    .overlay(Image(systemName: "photo").foregroundStyle(.tertiary))
+            case .empty:
+                Color.secondary.opacity(0.08)
+                    .frame(width: 64, height: 64)
+                    .overlay(ProgressView().controlSize(.small))
+            @unknown default:
+                Color.secondary.opacity(0.15)
+                    .frame(width: 64, height: 64)
             }
         }
-        .frame(width: 64, height: 64)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }

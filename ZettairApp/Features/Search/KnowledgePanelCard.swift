@@ -43,12 +43,24 @@ struct KnowledgePanelCard: View {
                     AsyncImage(url: url) { phase in
                         switch phase {
                         case .success(let image):
-                            image.resizable().aspectRatio(contentMode: .fill)
-                        default:
-                            Color.secondary.opacity(0.1)
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 90, height: 90)
+                                .clipped()
+                        case .failure:
+                            Color.secondary.opacity(0.15)
+                                .frame(width: 90, height: 90)
+                                .overlay(Image(systemName: "photo").foregroundStyle(.tertiary))
+                        case .empty:
+                            Color.secondary.opacity(0.08)
+                                .frame(width: 90, height: 90)
+                                .overlay(ProgressView().controlSize(.small))
+                        @unknown default:
+                            Color.secondary.opacity(0.15)
+                                .frame(width: 90, height: 90)
                         }
                     }
-                    .frame(width: 90, height: 90)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 }
             }

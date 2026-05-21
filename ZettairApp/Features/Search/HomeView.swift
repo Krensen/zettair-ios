@@ -5,6 +5,7 @@ import ZettairKit
 /// and a trending chip rail below — mirrors zettair.io's homepage.
 struct HomeView: View {
     let trending: TrendingResponse?
+    let trendingThumbs: [String: URL]
     let onTapTrending: (TrendingItem) -> Void
     let logoNamespace: Namespace.ID
 
@@ -17,7 +18,7 @@ struct HomeView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                 if let t = trending, !t.items.isEmpty {
-                    TrendingListView(response: t, onTap: onTapTrending)
+                    TrendingListView(response: t, thumbs: trendingThumbs, onTap: onTapTrending)
                         .padding(.top, 12)
                         .padding(.horizontal)
                 }
