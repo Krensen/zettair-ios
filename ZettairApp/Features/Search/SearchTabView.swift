@@ -33,9 +33,16 @@ struct SearchTabView: View {
                 }
             }
             .task {
-                await viewModel.loadTrending(api: environment.api)
+                // Paint cached thumbnails immediately, then refresh in the
+                // background. The hydrate step is cheap (disk read).
+                await viewModel.hydrateTrendingThumbs(from: environment.trendingThumbCache)
+                await viewModel.loadTrending(api: environment.api,
+                                              thumbCache: environment.trendingThumbCache)
             }
-            .refreshable { await viewModel.loadTrending(api: environment.api) }
+            .refreshable {
+                await viewModel.loadTrending(api: environment.api,
+                                              thumbCache: environment.trendingThumbCache)
+            }
         }
     }
 
