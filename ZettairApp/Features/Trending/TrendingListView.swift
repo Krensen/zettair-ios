@@ -103,23 +103,7 @@ private struct ThumbnailOrTile: View {
 
     var body: some View {
         if let url {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 56, height: 56)
-                        .clipped()
-                case .failure:
-                    LetterTile(title: title)
-                case .empty:
-                    LetterTile(title: title)
-                @unknown default:
-                    LetterTile(title: title)
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            SmartImageView(url: url, size: CGSize(width: 56, height: 56), cornerRadius: 10)
         } else {
             LetterTile(title: title)
         }

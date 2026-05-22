@@ -112,20 +112,16 @@ private struct BriefCardView: View {
     @ViewBuilder
     private var hero: some View {
         if let s = item.imageURL, let url = URL(string: s) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().aspectRatio(contentMode: .fill)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 200)
-                        .clipped()
-                default:
-                    Color.secondary.opacity(0.12)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 200)
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            // The brief hero is intrinsically wide (~card-width × 200pt). Use a
+            // representative size; SmartImageView's crop is aspect-aware so any
+            // width that matches the displayed aspect works.
+            SmartImageView(
+                url: url,
+                size: CGSize(width: 400, height: 200),
+                cornerRadius: 12,
+                fillParent: true
+            )
+            .frame(height: 200)
         }
     }
 
