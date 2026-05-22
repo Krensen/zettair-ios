@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 import ZettairKit
 
 @main
@@ -7,6 +8,11 @@ struct ZettairApp: App {
     @StateObject private var environment = AppEnvironment()
     @Environment(\.scenePhase) private var scenePhase
     @State private var launchAnimationDone = false
+    private let notificationDelegate = NotificationDelegate()
+
+    init() {
+        UNUserNotificationCenter.current().delegate = notificationDelegate
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -22,8 +28,12 @@ struct ZettairApp: App {
                         router.handle(activity: activity)
                     }
                     .onChange(of: scenePhase) { phase in
-                        if phase == .active { drainPendingQueryFromIntent() }
+                        if phase == .active {
+                            drainPendingQueryFromIntent()
+                            notificationDelegate.router = router
+                        }
                     }
+                    .onAppear { notificationDelegate.router = router }
 
                 if !launchAnimationDone {
                     LaunchView {

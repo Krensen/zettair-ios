@@ -25,6 +25,10 @@ struct RootView: View {
                 .tabItem { Label("Search", systemImage: "magnifyingglass") }
                 .tag(AppRouter.Tab.search)
 
+            DailyBriefView()
+                .tabItem { Label("Brief", systemImage: "newspaper") }
+                .tag(AppRouter.Tab.brief)
+
             SavedTabView()
                 .tabItem { Label("Saved", systemImage: "bookmark") }
                 .tag(AppRouter.Tab.saved)

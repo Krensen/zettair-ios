@@ -10,6 +10,7 @@ final class AppEnvironment: ObservableObject {
     let cache: any ArticleCache
     let savedStore: SavedStore                 // PRD-028 M10 placeholder
     let trendingThumbCache: TrendingThumbCache // disk-persisted (query → image URL)
+    let dailyBriefStore: DailyBriefStore       // disk-persisted morning brief
 
     init() {
         // Bump URLCache so AsyncImage's pixel bytes survive launches. /img sets
@@ -23,5 +24,6 @@ final class AppEnvironment: ObservableObject {
         self.cache = InMemoryArticleCache(maxEntries: 100)
         self.savedStore = SavedStore()
         self.trendingThumbCache = TrendingThumbCache()
+        self.dailyBriefStore = DailyBriefStore()
     }
 }

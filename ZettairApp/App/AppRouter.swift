@@ -5,7 +5,7 @@ import SwiftUI
 /// share extension hand-offs, AppIntents, and Spotlight all funnel here.
 @MainActor
 final class AppRouter: ObservableObject {
-    enum Tab: Hashable { case search, saved, settings }
+    enum Tab: Hashable { case search, brief, saved, settings }
 
     @Published var tab: Tab = .search
     @Published var pendingQuery: String? = nil
