@@ -12,13 +12,18 @@ import Vision
 ///
 /// Caches the computed crop rect (not the bytes) keyed by URL in
 /// SmartCropCache so we don't re-run Vision per frame.
-struct SmartImageView: View {
+struct SmartImageView<FailureView: View>: View {
     let url: URL
     /// The aspect ratio + crop-target size. If `fillParent` is true the view
     /// expands to fill its parent's width while preserving the aspect.
     let size: CGSize
     var cornerRadius: CGFloat = 10
     var fillParent: Bool = false
+    /// What to show when the image fails to load (404, decode error, etc.).
+    /// Trending tiles pass a LetterTile here so a missing image still looks
+    /// branded; result rows / knowledge panels pass the default grey
+    /// placeholder with a photo glyph.
+    let failureView: () -> FailureView
 
     @State private var image: UIImage? = nil
     @State private var cropRect: CGRect? = nil   // in image-space pixels
@@ -31,9 +36,7 @@ struct SmartImageView: View {
             } else if let image {
                 renderedImage(image)
             } else if failed {
-                placeholder.overlay(
-                    Image(systemName: "photo").foregroundStyle(.tertiary)
-                )
+                failureView()
             } else {
                 placeholder.overlay(ProgressView().controlSize(.small))
             }
@@ -198,6 +201,35 @@ struct SmartImageView: View {
     private func cropped(_ image: UIImage, to rect: CGRect) -> UIImage {
         guard let cg = image.cgImage?.cropping(to: rect) else { return image }
         return UIImage(cgImage: cg, scale: image.scale, orientation: image.imageOrientation)
+    }
+}
+
+// MARK: - Convenience inits
+
+extension SmartImageView where FailureView == DefaultSmartImageFailureView {
+    /// Default failure view: grey rectangle with a tertiary photo glyph.
+    /// Used by result rows, knowledge panels, and the daily brief hero.
+    init(url: URL, size: CGSize, cornerRadius: CGFloat = 10, fillParent: Bool = false) {
+        self.init(url: url, size: size, cornerRadius: cornerRadius,
+                   fillParent: fillParent,
+                   failureView: { DefaultSmartImageFailureView(size: size, fillParent: fillParent) })
+    }
+}
+
+struct DefaultSmartImageFailureView: View {
+    let size: CGSize
+    let fillParent: Bool
+    var body: some View {
+        Group {
+            if fillParent {
+                Color.secondary.opacity(0.10)
+                    .aspectRatio(size.width / size.height, contentMode: .fit)
+            } else {
+                Color.secondary.opacity(0.10)
+                    .frame(width: size.width, height: size.height)
+            }
+        }
+        .overlay(Image(systemName: "photo").foregroundStyle(.tertiary))
     }
 }
 

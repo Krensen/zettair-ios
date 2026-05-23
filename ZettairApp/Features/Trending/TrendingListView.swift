@@ -103,7 +103,12 @@ private struct ThumbnailOrTile: View {
 
     var body: some View {
         if let url {
-            SmartImageView(url: url, size: CGSize(width: 56, height: 56), cornerRadius: 10)
+            SmartImageView(
+                url: url,
+                size: CGSize(width: 56, height: 56),
+                cornerRadius: 10,
+                failureView: { LetterTile(title: title) }
+            )
         } else {
             LetterTile(title: title)
         }

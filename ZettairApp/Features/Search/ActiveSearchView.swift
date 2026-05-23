@@ -128,22 +128,27 @@ private struct GridSuggestion: View {
             SmartImageView(
                 url: thumb,
                 size: CGSize(width: 64, height: 64),
-                cornerRadius: 14
+                cornerRadius: 14,
+                failureView: { letterTileFallback }
             )
         } else {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(LinearGradient(
-                    colors: [tileColor.opacity(0.85), tileColor.opacity(0.55)],
-                    startPoint: .topLeading, endPoint: .bottomTrailing
-                ))
-                .frame(width: 64, height: 64)
-                .overlay(
-                    Text(letterPair)
-                        .font(.custom("Georgia-Italic", size: 26))
-                        .foregroundStyle(.white)
-                        .tracking(-1)
-                )
+            letterTileFallback
         }
+    }
+
+    private var letterTileFallback: some View {
+        RoundedRectangle(cornerRadius: 14, style: .continuous)
+            .fill(LinearGradient(
+                colors: [tileColor.opacity(0.85), tileColor.opacity(0.55)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+            .frame(width: 64, height: 64)
+            .overlay(
+                Text(letterPair)
+                    .font(.custom("Georgia-Italic", size: 26))
+                    .foregroundStyle(.white)
+                    .tracking(-1)
+            )
     }
 
     private var letterPair: String {
