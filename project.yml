@@ -37,10 +37,9 @@ targets:
         optional: true
     dependencies:
       - package: ZettairKit
-      - target: ZettairWidget
-        embed: true
-      - target: ZettairShare
-        embed: true
+      # Widget + share extension are dropped from the side-load build because
+      # free Apple ID accounts can't register App Groups in the developer
+      # portal. Re-add when on a paid Developer Program.
     info:
       path: ZettairApp/Info.plist
       properties:
@@ -70,52 +69,6 @@ targets:
         CODE_SIGN_ENTITLEMENTS: ZettairApp/ZettairApp.entitlements
         CODE_SIGN_STYLE: Automatic
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-
-  # ---------------- Widget extension ----------------
-  ZettairWidget:
-    type: app-extension
-    platform: iOS
-    sources:
-      - path: ZettairWidget
-    dependencies:
-      - package: ZettairKit
-      - sdk: SwiftUI.framework
-      - sdk: WidgetKit.framework
-    info:
-      path: ZettairWidget/Info.plist
-      properties:
-        CFBundleDisplayName: Zettair Trending
-        NSExtension:
-          NSExtensionPointIdentifier: com.apple.widgetkit-extension
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.zettair.app.widget
-        CODE_SIGN_ENTITLEMENTS: ZettairWidget/ZettairWidget.entitlements
-        CODE_SIGN_STYLE: Automatic
-
-  # ---------------- Share extension ----------------
-  ZettairShare:
-    type: app-extension
-    platform: iOS
-    sources:
-      - path: ZettairShare
-    info:
-      path: ZettairShare/Info.plist
-      properties:
-        CFBundleDisplayName: Search Zettair
-        NSExtension:
-          NSExtensionPointIdentifier: com.apple.share-services
-          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
-          NSExtensionAttributes:
-            NSExtensionActivationRule:
-              NSExtensionActivationSupportsText: true
-              NSExtensionActivationSupportsWebURLWithMaxCount: 1
-              NSExtensionActivationSupportsWebPageWithMaxCount: 1
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.zettair.app.share
-        CODE_SIGN_ENTITLEMENTS: ZettairShare/ZettairShare.entitlements
-        CODE_SIGN_STYLE: Automatic
 
 schemes:
   ZettairApp:
