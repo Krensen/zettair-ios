@@ -107,43 +107,10 @@ private struct ThumbnailOrTile: View {
                 url: url,
                 size: CGSize(width: 56, height: 56),
                 cornerRadius: 10,
-                failureView: { LetterTile(title: title) }
+                failureView: { BrandLetterTile(title: title, size: 56, cornerRadius: 10) }
             )
         } else {
-            LetterTile(title: title)
+            BrandLetterTile(title: title, size: 56, cornerRadius: 10)
         }
-    }
-}
-
-/// 56×56 coloured tile with the first 1–2 letters of the title in italic
-/// Georgia (brand-consistent). Colour is stable per title via a hash so the
-/// same article always gets the same colour.
-private struct LetterTile: View {
-    let title: String
-
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(LinearGradient(
-                    colors: [color.opacity(0.85), color.opacity(0.55)],
-                    startPoint: .topLeading, endPoint: .bottomTrailing
-                ))
-            Text(letters)
-                .font(.custom("Georgia-Italic", size: 24))
-                .foregroundStyle(.white)
-                .tracking(-1)
-        }
-        .frame(width: 56, height: 56)
-    }
-
-    private var letters: String {
-        let firstWord = title.split(separator: " ").first.map(String.init) ?? title
-        let prefix = firstWord.prefix(2)
-        return prefix.uppercased()
-    }
-
-    private var color: Color {
-        let h = abs(title.hashValue)
-        return BrandStripe.colors[h % BrandStripe.colors.count]
     }
 }

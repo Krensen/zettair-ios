@@ -26,7 +26,7 @@ struct ResultRow: View {
                     pills
                 }
                 if let s = result.imageURL, let url = ImageProxy.url(for: s) {
-                    Thumbnail(url: url)
+                    Thumbnail(url: url, title: result.displayTitle)
                 }
             }
             .padding(.vertical, 6)
@@ -66,8 +66,14 @@ struct ResultRow: View {
 
 private struct Thumbnail: View {
     let url: URL
+    let title: String
     var body: some View {
-        SmartImageView(url: url, size: CGSize(width: 64, height: 64), cornerRadius: 8)
+        SmartImageView(
+            url: url,
+            size: CGSize(width: 64, height: 64),
+            cornerRadius: 8,
+            failureView: { BrandLetterTile(title: title, size: 64, cornerRadius: 8) }
+        )
     }
 }
 

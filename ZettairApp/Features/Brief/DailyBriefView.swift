@@ -119,7 +119,8 @@ private struct BriefCardView: View {
                 url: url,
                 size: CGSize(width: 400, height: 200),
                 cornerRadius: 12,
-                fillParent: true
+                fillParent: true,
+                failureView: { BrandLetterBanner(title: item.title) }
             )
             .frame(height: 200)
         }

@@ -40,7 +40,12 @@ struct KnowledgePanelCard: View {
                     }
                 }
                 if let url = imageURL {
-                    SmartImageView(url: url, size: CGSize(width: 90, height: 90), cornerRadius: 10)
+                    SmartImageView(
+                        url: url,
+                        size: CGSize(width: 90, height: 90),
+                        cornerRadius: 10,
+                        failureView: { BrandLetterTile(title: title, size: 90, cornerRadius: 10) }
+                    )
                 }
             }
             attribution

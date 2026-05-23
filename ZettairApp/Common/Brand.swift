@@ -69,3 +69,73 @@ struct BrandStripeView: View {
         .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
     }
 }
+
+/// Branded fallback for when a Wikimedia image is missing or 404s. A
+/// coloured rounded square with the title's first 1-2 initials in italic
+/// Georgia. Colour is stable per title (hash → BrandStripe palette) so
+/// the same article always reads as the same tile.
+///
+/// Used as the failureView for SmartImageView across trending tiles,
+/// result rows, knowledge panel, and the brief hero.
+struct BrandLetterTile: View {
+    let title: String
+    let size: CGFloat
+    var cornerRadius: CGFloat = 10
+    var fontSize: CGFloat? = nil
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .fill(LinearGradient(
+                colors: [color.opacity(0.85), color.opacity(0.55)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+            .frame(width: size, height: size)
+            .overlay(
+                Text(letters)
+                    .font(.custom("Georgia-Italic", size: fontSize ?? size * 0.42))
+                    .foregroundStyle(.white)
+                    .tracking(-1)
+            )
+    }
+
+    private var letters: String {
+        let firstWord = title.split(separator: " ").first.map(String.init) ?? title
+        return String(firstWord.prefix(2)).uppercased()
+    }
+
+    private var color: Color {
+        let h = abs(title.hashValue)
+        return BrandStripe.colors[h % BrandStripe.colors.count]
+    }
+}
+
+/// Variant for the wide brief-card hero (fills parent width). Same colour
+/// + initials, just laid out to span horizontally with a fixed aspect.
+struct BrandLetterBanner: View {
+    let title: String
+    var cornerRadius: CGFloat = 12
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .fill(LinearGradient(
+                colors: [color.opacity(0.85), color.opacity(0.55)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+            .overlay(
+                Text(letters)
+                    .font(.custom("Georgia-Italic", size: 96))
+                    .foregroundStyle(.white)
+                    .tracking(-2)
+            )
+    }
+
+    private var letters: String {
+        let firstWord = title.split(separator: " ").first.map(String.init) ?? title
+        return String(firstWord.prefix(2)).uppercased()
+    }
+
+    private var color: Color {
+        let h = abs(title.hashValue)
+        return BrandStripe.colors[h % BrandStripe.colors.count]
+    }
+}
