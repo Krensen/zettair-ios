@@ -20,6 +20,16 @@ struct ActiveSearchView: View {
     let onTapTrending: (TrendingItem) -> Void
     let onTapSuggestion: (Suggestion) -> Void
 
+    // `\.dismissSearch` is the official SwiftUI way to programmatically
+    // exit the .searchable active state. It's only readable inside a view
+    // hosted by .searchable — ActiveSearchView is, since it's part of the
+    // overlay host that sits inside .searchable. Calling this before
+    // triggering the parent's onTap callbacks unblocks the search from
+    // running: while .isSearching is true, SwiftUI consumes interactions
+    // with the search field's bound state, so simply mutating draft +
+    // calling runSearch from the parent doesn't actually submit.
+    @Environment(\.dismissSearch) private var dismissSearch
+
     private var trimmedDraft: String {
         draft.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -37,12 +47,18 @@ struct ActiveSearchView: View {
             TrendingSuggestionGrid(
                 trending: trending,
                 thumbs: trendingThumbs,
-                onTap: onTapTrending
+                onTap: { item in
+                    dismissSearch()
+                    onTapTrending(item)
+                }
             )
         } else {
             QuerySuggestionList(
                 suggestions: suggestions,
-                onTap: onTapSuggestion
+                onTap: { s in
+                    dismissSearch()
+                    onTapSuggestion(s)
+                }
             )
         }
     }

@@ -14,6 +14,11 @@ struct ResultsView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
+                CurrentSearchHeader(
+                    query: query,
+                    totalResults: response.total,
+                    tookMs: response.tookMs
+                )
                 if let summary = response.summary {
                     KnowledgePanelCard(
                         title: response.results.first?.displayTitle ?? query,
@@ -60,6 +65,35 @@ struct ResultsView: View {
 private struct IdentifiableURL: Identifiable {
     let url: URL
     var id: String { url.absoluteString }
+}
+
+/// Small banner at the top of the results showing what query produced
+/// them, how many hits, and how long the engine took. Needed because the
+/// .searchable field's nav-bar drawer collapses to its prompt placeholder
+/// when not focused, so the active query isn't otherwise visible.
+private struct CurrentSearchHeader: View {
+    let query: String
+    let totalResults: Int
+    let tookMs: Double
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(query)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+            Text(stats)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var stats: String {
+        let n = totalResults.formatted()
+        let ms = String(format: "%.0f", tookMs)
+        return "\(n) results · \(ms) ms"
+    }
 }
 
 private struct FooterAttribution: View {
