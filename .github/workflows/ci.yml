@@ -39,12 +39,18 @@ jobs:
       - name: Generate project
         run: xcodegen
       - name: Build app target
+        # generic/platform=iOS (device) instead of iOS Simulator — the
+        # runner's iphonesimulator SDK doesn't have matching simulator
+        # runtimes installed, so a simulator build errors out at the
+        # asset compilation step. A device build is enough to confirm
+        # the project + Swift sources compile cleanly. CODE_SIGNING_ALLOWED=NO
+        # skips the per-target signing dance.
         run: |
           xcodebuild \
             -project Zettair.xcodeproj \
             -scheme ZettairApp \
             -configuration Debug \
-            -destination "generic/platform=iOS Simulator" \
+            -destination "generic/platform=iOS" \
             -quiet \
             CODE_SIGNING_ALLOWED=NO \
             build
