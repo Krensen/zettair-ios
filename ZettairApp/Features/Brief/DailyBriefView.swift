@@ -102,8 +102,6 @@ private struct BriefCardView: View {
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        // Apply padding OUTSIDE the ScrollView so it survives whatever
-        // .tabViewStyle(.page) is doing to the inner layout.
         .padding(.horizontal, 20)
         .sheet(item: Binding<IdentifiableURL?>(
             get: { showingSafari.map(IdentifiableURL.init) },
@@ -121,12 +119,12 @@ private struct BriefCardView: View {
             // width that matches the displayed aspect works.
             SmartImageView(
                 url: url,
-                size: CGSize(width: 400, height: 200),
+                size: CGSize(width: 400, height: 220),
                 cornerRadius: 12,
                 fillParent: true,
                 failureView: { BrandLetterBanner(title: item.title) }
             )
-            .frame(height: 200)
+            .frame(height: 220)
         }
     }
 
