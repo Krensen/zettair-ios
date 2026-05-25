@@ -127,7 +127,12 @@ public actor DailyBriefAssembler {
         do {
             let r = try await api.search(trending.query, n: 1)
             guard let top = r.results.first else { return nil }
-            let rawImg = top.imageURL.flatMap { ImageProxy.url(for: $0, preferredWidth: 500) }
+            // Brief hero is ~card-width × 200pt; on a 3× iPhone that's
+            // ~1100px wide. Wikimedia's next allowed width above that is
+            // 960 (or 1280); 960 is a reasonable trade-off between sharp
+            // and small. The hero crops via Vision so we're not bandwidth-
+            // bound on aspect.
+            let rawImg = top.imageURL.flatMap { ImageProxy.url(for: $0, preferredWidth: 960) }
             return DailyBriefItem(
                 query: trending.query,
                 title: trending.title,
