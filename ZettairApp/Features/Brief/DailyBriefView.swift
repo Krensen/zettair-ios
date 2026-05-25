@@ -50,13 +50,9 @@ struct DailyBriefView: View {
                     ForEach(Array(brief.items.enumerated()), id: \.element.id) { idx, item in
                         BriefCardView(item: item, index: idx, total: brief.items.count)
                             .tag(idx)
-                            // Wider outer margin gives the card visible
-                            // breathing room from the screen edges and
-                            // makes the page-indicator dots feel less
-                            // crammed. Bottom padding leaves space for
-                            // the dots themselves.
-                            .padding(.horizontal, 20)
-                            .padding(.bottom, 36)
+                            // Card is now visibly inset from screen edges.
+                            .padding(.horizontal, 28)
+                            .padding(.bottom, 40)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .automatic))
@@ -102,7 +98,7 @@ private struct BriefCardView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .padding(22)
+            .padding(24)
             .background(Color.secondary.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }

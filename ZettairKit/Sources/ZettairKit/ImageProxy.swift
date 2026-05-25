@@ -22,9 +22,31 @@ public enum ImageProxy {
     /// thumbnails at 3× density. 330px would be next.
     public static let defaultThumbWidth: Int = 250
 
+    /// Returns the URL to fetch — by default, the *direct* Wikimedia URL
+    /// with the size rewritten to the closest allowed width.
+    ///
+    /// We *used* to route every image through `zettair.io/img?url=…`, but
+    /// that proxy turns out to cache responses in a way that ignores the
+    /// requested thumb width: once /img returned 250px for a given file,
+    /// every subsequent request for any other width returns the cached
+    /// 250px bytes (a server-side bug we can't fix from here, per the
+    /// brief). Fetching Wikimedia directly is fine — they serve to bare
+    /// User-Agents at single-phone request volumes, and URLSession's
+    /// default UA + the per-launch cache in URLCache.shared keeps load
+    /// well below their throttling thresholds.
     public static func url(for raw: String,
-                            preferredWidth: Int = defaultThumbWidth,
-                            base: URL = ZettairAPI.defaultBaseURL) -> URL? {
+                            preferredWidth: Int = defaultThumbWidth) -> URL? {
+        guard !raw.isEmpty else { return nil }
+        let rewritten = rewriteToAllowedThumbWidth(raw, preferredWidth: preferredWidth)
+        return URL(string: rewritten)
+    }
+
+    /// Returns the proxied URL (`zettair.io/img?url=…`) for callers that
+    /// specifically want it. Currently unused — kept available for the day
+    /// the proxy cache is fixed.
+    public static func proxiedURL(for raw: String,
+                                   preferredWidth: Int = defaultThumbWidth,
+                                   base: URL = ZettairAPI.defaultBaseURL) -> URL? {
         guard !raw.isEmpty else { return nil }
         let rewritten = rewriteToAllowedThumbWidth(raw, preferredWidth: preferredWidth)
         guard var comps = URLComponents(url: base.appendingPathComponent("/img"), resolvingAgainstBaseURL: false) else {
