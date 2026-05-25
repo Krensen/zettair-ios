@@ -50,8 +50,13 @@ struct DailyBriefView: View {
                     ForEach(Array(brief.items.enumerated()), id: \.element.id) { idx, item in
                         BriefCardView(item: item, index: idx, total: brief.items.count)
                             .tag(idx)
-                            .padding(.horizontal)
-                            .padding(.bottom, 32)
+                            // Wider outer margin gives the card visible
+                            // breathing room from the screen edges and
+                            // makes the page-indicator dots feel less
+                            // crammed. Bottom padding leaves space for
+                            // the dots themselves.
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 36)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .automatic))
@@ -97,7 +102,7 @@ private struct BriefCardView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .padding(20)
+            .padding(22)
             .background(Color.secondary.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
