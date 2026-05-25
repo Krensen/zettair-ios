@@ -84,11 +84,10 @@ private struct BriefCardView: View {
     @State private var showingSafari: URL? = nil
 
     var body: some View {
+        // Simple first principles: every element inside the brief card
+        // gets horizontal breathing room from the screen edges. No card
+        // background, no nested layers — just a margin on the content.
         ScrollView {
-            // Outer .padding(.horizontal) → visible gap between the card's
-            // grey background and the screen edges. Inner .padding(24) →
-            // gap between card edge and body text. Total ~40pt from text
-            // to screen edge.
             VStack(alignment: .leading, spacing: 16) {
                 hero
                 header
@@ -103,10 +102,8 @@ private struct BriefCardView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .padding(24)
-            .background(Color.secondary.opacity(0.06))
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
         }
         .sheet(item: Binding<IdentifiableURL?>(
             get: { showingSafari.map(IdentifiableURL.init) },
