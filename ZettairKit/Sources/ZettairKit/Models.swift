@@ -100,6 +100,9 @@ public struct TrendingItem: Decodable, Sendable, Equatable, Identifiable {
     public let inIndex: Bool
     public let source: String
     public let wikiURL: String?
+    /// Server-provided thumbnail URL (added 2026-05-25). Null when the
+    /// underlying article has no image_url in the images sidecar.
+    public let imageURL: String?
 
     public var id: String { query }
 
@@ -107,6 +110,7 @@ public struct TrendingItem: Decodable, Sendable, Equatable, Identifiable {
         case query, title, source
         case inIndex = "in_index"
         case wikiURL = "wiki_url"
+        case imageURL = "image_url"
     }
 }
 

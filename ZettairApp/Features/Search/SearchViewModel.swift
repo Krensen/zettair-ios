@@ -15,7 +15,6 @@ final class SearchViewModel: ObservableObject {
     @Published var state: State = .idle
     @Published var lastQuery: String? = nil
     @Published var trending: TrendingResponse? = nil
-    @Published private(set) var trendingThumbs: [String: URL] = [:]   // keyed by query
     @Published private(set) var allSuggestions: [Suggestion] = []
 
     var isShowingResults: Bool {
@@ -74,70 +73,13 @@ final class SearchViewModel: ObservableObject {
         }
     }
 
-    /// Pull the disk-persisted (query → image URL) mapping into the view
-    /// model so the very first paint of HomeView has real thumbnails. Called
-    /// once on view appear, before loadTrending fires network.
-    func hydrateTrendingThumbs(from cache: TrendingThumbCache) async {
-        let snapshot = await cache.snapshot()
-        // Don't clobber any in-memory entries that have already landed (e.g.
-        // if the network call beat us to it).
-        for (q, u) in snapshot where trendingThumbs[q] == nil {
-            trendingThumbs[q] = u
-        }
-    }
-
-    func loadTrending(api: ZettairAPI, thumbCache: TrendingThumbCache) async {
+    /// /api/trending now ships image_url per item (server change 2026-05-25)
+    /// so this is a single endpoint call, no fan-out to /search.
+    func loadTrending(api: ZettairAPI) async {
         do {
-            let resp = try await api.trending(n: 8)
-            self.trending = resp
-            await fetchTrendingThumbs(for: resp, api: api, cache: thumbCache)
+            self.trending = try await api.trending(n: 8)
         } catch {
             // Quietly leave nil; home view hides the rail when empty.
-        }
-    }
-
-    /// /api/trending doesn't carry image URLs, so for each item we hit
-    /// /search?q=<query>&n=1 in parallel and pull the top result's image_url.
-    /// Results land in `trendingThumbs` keyed by item.query; rows render
-    /// progressively as each fetch completes (since the dict is @Published).
-    /// Successful resolutions are persisted to the on-disk cache so the next
-    /// launch can paint instantly.
-    private func fetchTrendingThumbs(for trending: TrendingResponse,
-                                     api: ZettairAPI,
-                                     cache: TrendingThumbCache) async {
-        // Skip items we already have an URL for in memory (either from the
-        // hydrate step or from a previous in-session fetch). The on-disk cache
-        // is the source of truth for "do we know this query yet".
-        let needed = trending.items.filter { trendingThumbs[$0.query] == nil }
-        guard !needed.isEmpty else { return }
-
-        var resolved: [(String, URL)] = []
-
-        await withTaskGroup(of: (String, URL?).self) { group in
-            for item in needed {
-                group.addTask { [item] in
-                    do {
-                        let r = try await api.search(item.query, n: 1)
-                        if let s = r.results.first?.imageURL,
-                           let url = ImageProxy.url(for: s) {
-                            return (item.query, url)
-                        }
-                    } catch {
-                        // best-effort
-                    }
-                    return (item.query, nil)
-                }
-            }
-            for await (q, url) in group {
-                if let url {
-                    trendingThumbs[q] = url
-                    resolved.append((q, url))
-                }
-            }
-        }
-
-        if !resolved.isEmpty {
-            await cache.putAll(resolved)
         }
     }
 

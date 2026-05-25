@@ -15,7 +15,6 @@ import ZettairKit
 struct ActiveSearchView: View {
     let draft: String
     let trending: TrendingResponse?
-    let trendingThumbs: [String: URL]
     let suggestions: [Suggestion]
     let onTapTrending: (TrendingItem) -> Void
     let onTapSuggestion: (Suggestion) -> Void
@@ -46,7 +45,6 @@ struct ActiveSearchView: View {
         if trimmedDraft.isEmpty {
             TrendingSuggestionGrid(
                 trending: trending,
-                thumbs: trendingThumbs,
                 onTap: { item in
                     dismissSearch()
                     onTapTrending(item)
@@ -68,7 +66,6 @@ struct ActiveSearchView: View {
 
 private struct TrendingSuggestionGrid: View {
     let trending: TrendingResponse?
-    let thumbs: [String: URL]
     let onTap: (TrendingItem) -> Void
 
     private let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: 12), count: 4)
@@ -88,7 +85,7 @@ private struct TrendingSuggestionGrid: View {
                                 Haptics.tap()
                                 onTap(item)
                             } label: {
-                                GridSuggestion(item: item, thumb: thumbs[item.query])
+                                GridSuggestion(item: item, thumb: thumbURL(for: item))
                             }
                             .buttonStyle(.plain)
                         }
@@ -103,6 +100,10 @@ private struct TrendingSuggestionGrid: View {
             }
             .padding(.top, 12)
         }
+    }
+
+    private func thumbURL(for item: TrendingItem) -> URL? {
+        item.imageURL.flatMap { ImageProxy.url(for: $0) }
     }
 }
 

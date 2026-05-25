@@ -13,7 +13,6 @@ struct SearchTabView: View {
             ActiveSearchOverlayHost(
                 draft: draft,
                 trending: viewModel.trending,
-                trendingThumbs: viewModel.trendingThumbs,
                 suggestions: viewModel.allSuggestions,
                 onTapTrending: handleTrendingTap,
                 onTapSuggestion: { s in
@@ -40,13 +39,10 @@ struct SearchTabView: View {
                 }
             }
             .task {
-                await viewModel.hydrateTrendingThumbs(from: environment.trendingThumbCache)
-                await viewModel.loadTrending(api: environment.api,
-                                              thumbCache: environment.trendingThumbCache)
+                await viewModel.loadTrending(api: environment.api)
             }
             .refreshable {
-                await viewModel.loadTrending(api: environment.api,
-                                              thumbCache: environment.trendingThumbCache)
+                await viewModel.loadTrending(api: environment.api)
             }
         }
     }
@@ -75,7 +71,6 @@ struct SearchTabView: View {
         case .idle:
             HomeView(
                 trending: viewModel.trending,
-                trendingThumbs: viewModel.trendingThumbs,
                 onTapTrending: handleTrendingTap,
                 logoNamespace: logoAnimation
             )
@@ -148,7 +143,6 @@ struct SearchTabView: View {
 private struct ActiveSearchOverlayHost<Underlying: View>: View {
     let draft: String
     let trending: TrendingResponse?
-    let trendingThumbs: [String: URL]
     let suggestions: [Suggestion]
     let onTapTrending: (TrendingItem) -> Void
     let onTapSuggestion: (Suggestion) -> Void
@@ -163,7 +157,6 @@ private struct ActiveSearchOverlayHost<Underlying: View>: View {
                 ActiveSearchView(
                     draft: draft,
                     trending: trending,
-                    trendingThumbs: trendingThumbs,
                     suggestions: suggestions,
                     onTapTrending: onTapTrending,
                     onTapSuggestion: onTapSuggestion

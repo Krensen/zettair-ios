@@ -1,16 +1,12 @@
 import SwiftUI
 import ZettairKit
 
-/// Replaces the horizontal chip rail with a vertical list on the homepage.
-/// iPhones have plenty of vertical real estate below the hero; a list uses
-/// it for scannability instead of cramming 6 truncated chips into one row.
-///
-/// Thumbnails are fetched via /search?q=<query>&n=1 in SearchViewModel and
-/// passed in keyed by query. While a thumbnail is loading or missing, we
-/// fall back to a branded letter tile.
+/// Vertical list of trending items on the homepage. Image URLs are now
+/// inline on each TrendingItem (server change 2026-05-25); previously we
+/// fanned out a /search?n=1 per item to extract the thumbnail. Falls
+/// back to a branded letter tile when image_url is absent or fails.
 struct TrendingListView: View {
     let response: TrendingResponse
-    let thumbs: [String: URL]
     let onTap: (TrendingItem) -> Void
 
     var body: some View {
@@ -22,7 +18,7 @@ struct TrendingListView: View {
                         Haptics.tap()
                         onTap(item)
                     }) {
-                        TrendingRow(item: item, thumb: thumbs[item.query])
+                        TrendingRow(item: item, thumb: thumbURL(for: item))
                             .padding(.vertical, 12)
                             .padding(.horizontal, 14)
                             .contentShape(Rectangle())
@@ -36,6 +32,10 @@ struct TrendingListView: View {
             .background(Color.secondary.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
+    }
+
+    private func thumbURL(for item: TrendingItem) -> URL? {
+        item.imageURL.flatMap { ImageProxy.url(for: $0) }
     }
 
     private var header: some View {

@@ -9,7 +9,6 @@ final class AppEnvironment: ObservableObject {
     let api: ZettairAPI
     let cache: any ArticleCache
     let savedStore: SavedStore                 // PRD-028 M10 placeholder
-    let trendingThumbCache: TrendingThumbCache // disk-persisted (query → image URL)
     let dailyBriefStore: DailyBriefStore       // disk-persisted morning brief
 
     init() {
@@ -23,7 +22,6 @@ final class AppEnvironment: ObservableObject {
         self.api = ZettairAPI()
         self.cache = InMemoryArticleCache(maxEntries: 100)
         self.savedStore = SavedStore()
-        self.trendingThumbCache = TrendingThumbCache()
         self.dailyBriefStore = DailyBriefStore()
     }
 }
