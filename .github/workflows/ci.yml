@@ -12,8 +12,12 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
-      - name: Select Xcode 16
-        run: sudo xcode-select -s /Applications/Xcode_16.app
+      - name: Select Xcode
+        # macos-15 ships Xcode 16.x and 26.x. Use the default (16.4).
+        # The previous "Xcode_16.app" path didn't exist (only point
+        # releases like Xcode_16.0.app / Xcode_16.4.app are installed),
+        # so this step was silently being a no-op anyway.
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run package tests
@@ -30,8 +34,12 @@ jobs:
       # objectVersion 77, which Xcode 15 can't read. macos-15 runners
       # ship multiple Xcodes; pin to Xcode 16 explicitly so the build is
       # deterministic.
-      - name: Select Xcode 16
-        run: sudo xcode-select -s /Applications/Xcode_16.app
+      - name: Select Xcode
+        # macos-15 ships Xcode 16.x and 26.x. Use the default (16.4).
+        # The previous "Xcode_16.app" path didn't exist (only point
+        # releases like Xcode_16.0.app / Xcode_16.4.app are installed),
+        # so this step was silently being a no-op anyway.
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Install XcodeGen
