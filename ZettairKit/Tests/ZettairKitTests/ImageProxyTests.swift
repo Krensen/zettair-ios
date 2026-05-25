@@ -47,22 +47,11 @@ final class ImageProxyTests: XCTestCase {
         XCTAssertEqual(ImageProxy.rewriteToAllowedThumbWidth(input, preferredWidth: 250), input)
     }
 
-    // MARK: url(for:) returns the direct Wikimedia URL
+    // MARK: url(for:) returns the proxied URL
 
-    func testDirectURLAtDefaultWidth() {
+    func testProxiedURLAtDefaultWidth() {
         let raw = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Foo.jpg/300px-Foo.jpg"
-        let direct = ImageProxy.url(for: raw)
-        XCTAssertNotNil(direct)
-        XCTAssertEqual(direct?.host, "upload.wikimedia.org")
-        XCTAssertTrue(direct?.absoluteString.contains("250px-Foo.jpg") ?? false,
-                       direct?.absoluteString ?? "nil")
-        XCTAssertFalse(direct?.absoluteString.contains("300px") ?? true,
-                        direct?.absoluteString ?? "nil")
-    }
-
-    func testProxiedURL() {
-        let raw = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Foo.jpg/300px-Foo.jpg"
-        let proxied = ImageProxy.proxiedURL(for: raw)
+        let proxied = ImageProxy.url(for: raw)
         XCTAssertNotNil(proxied)
         XCTAssertEqual(proxied?.host, "zettair.io")
         XCTAssertEqual(proxied?.path, "/img")
@@ -73,6 +62,5 @@ final class ImageProxyTests: XCTestCase {
 
     func testEmptyReturnsNil() {
         XCTAssertNil(ImageProxy.url(for: ""))
-        XCTAssertNil(ImageProxy.proxiedURL(for: ""))
     }
 }
