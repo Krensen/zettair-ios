@@ -48,11 +48,23 @@ struct SmartImageView<FailureView: View>: View {
     @ViewBuilder
     private func renderedImage(_ image: UIImage) -> some View {
         if fillParent {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
+            // Color.clear is the size authority — it respects whatever
+            // width the parent offers (capped at maxWidth: .infinity) and
+            // takes the requested height. The Image overlays at .fill so
+            // it never letterboxes; the .clipped() crops the overflow.
+            //
+            // This pattern avoids the SwiftUI gotcha where
+            // Image.resizable().aspectRatio(_, .fill) propagates a
+            // *larger-than-parent* width proposal up the tree, expanding
+            // ancestors and breaking horizontal padding.
+            Color.clear
                 .frame(maxWidth: .infinity)
-                .aspectRatio(size.width / size.height, contentMode: .fill)
+                .frame(height: size.height)
+                .overlay(
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                )
                 .clipped()
         } else {
             Image(uiImage: image)
