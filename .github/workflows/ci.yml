@@ -9,9 +9,11 @@ on:
 jobs:
   kit-tests:
     name: ZettairKit unit tests
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - name: Select Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.app
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run package tests
@@ -20,10 +22,18 @@ jobs:
 
   xcode-build:
     name: Xcode build (Debug, iOS simulator)
-    runs-on: macos-14
+    runs-on: macos-15
     needs: kit-tests
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      # Xcode 16 is required because xcodegen 2.45 emits project files at
+      # objectVersion 77, which Xcode 15 can't read. macos-15 runners
+      # ship multiple Xcodes; pin to Xcode 16 explicitly so the build is
+      # deterministic.
+      - name: Select Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+      - name: Show Xcode version
+        run: xcodebuild -version
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Generate project
