@@ -45,11 +45,11 @@ struct DailyBriefView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
         case .loaded(let brief):
-            // .tabViewStyle(.page) lays each page out at the TabView's
-            // full width, so per-page .padding(.horizontal, 28) only
-            // insets the card's *contents*, not its background — the
-            // grey card extends to the screen edge. Inset the whole
-            // TabView instead so the card itself is narrower.
+            // .tabViewStyle(.page) ignores padding on the TabView itself
+            // (overflows the screen) AND wraps per-page padding inside the
+            // page, so the card's .background extends to the page edge no
+            // matter where we apply padding here. The inset has to happen
+            // INSIDE BriefCardView, wrapped around the card background.
             TabView(selection: $page) {
                 ForEach(Array(brief.items.enumerated()), id: \.element.id) { idx, item in
                     BriefCardView(item: item, index: idx, total: brief.items.count)
@@ -59,7 +59,6 @@ struct DailyBriefView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
-            .padding(.horizontal, 16)
 
         case .error(let msg):
             VStack(spacing: 12) {
@@ -86,6 +85,10 @@ private struct BriefCardView: View {
 
     var body: some View {
         ScrollView {
+            // Outer .padding(.horizontal) → visible gap between the card's
+            // grey background and the screen edges. Inner .padding(24) →
+            // gap between card edge and body text. Total ~40pt from text
+            // to screen edge.
             VStack(alignment: .leading, spacing: 16) {
                 hero
                 header
@@ -103,6 +106,7 @@ private struct BriefCardView: View {
             .padding(24)
             .background(Color.secondary.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .padding(.horizontal, 16)
         }
         .sheet(item: Binding<IdentifiableURL?>(
             get: { showingSafari.map(IdentifiableURL.init) },
