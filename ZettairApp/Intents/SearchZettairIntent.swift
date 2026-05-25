@@ -36,11 +36,15 @@ public struct SearchZettairIntent: AppIntent {
 public struct ZettairShortcuts: AppShortcutsProvider {
     @AppShortcutsBuilder
     public static var appShortcuts: [AppShortcut] {
+        // Note: Siri phrase templates can't interpolate a String parameter
+        // — AppShortcuts requires AppEntity / AppEnum for in-phrase
+        // placeholders. So we only ship the no-parameter phrase; users
+        // who say "Search Wikipedia in Zettair" are prompted for the query.
         AppShortcut(
             intent: SearchZettairIntent(),
             phrases: [
                 "Search Wikipedia in \(.applicationName)",
-                "Look up \(\.$query) in \(.applicationName)",
+                "Search \(.applicationName)",
             ],
             shortTitle: "Search Wikipedia",
             systemImageName: "magnifyingglass"
