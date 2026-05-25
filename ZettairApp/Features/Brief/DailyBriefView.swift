@@ -45,19 +45,21 @@ struct DailyBriefView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
         case .loaded(let brief):
-            VStack(spacing: 0) {
-                TabView(selection: $page) {
-                    ForEach(Array(brief.items.enumerated()), id: \.element.id) { idx, item in
-                        BriefCardView(item: item, index: idx, total: brief.items.count)
-                            .tag(idx)
-                            // Card is now visibly inset from screen edges.
-                            .padding(.horizontal, 28)
-                            .padding(.bottom, 40)
-                    }
+            // .tabViewStyle(.page) lays each page out at the TabView's
+            // full width, so per-page .padding(.horizontal, 28) only
+            // insets the card's *contents*, not its background — the
+            // grey card extends to the screen edge. Inset the whole
+            // TabView instead so the card itself is narrower.
+            TabView(selection: $page) {
+                ForEach(Array(brief.items.enumerated()), id: \.element.id) { idx, item in
+                    BriefCardView(item: item, index: idx, total: brief.items.count)
+                        .tag(idx)
+                        .padding(.bottom, 40)
                 }
-                .tabViewStyle(.page(indexDisplayMode: .automatic))
-                .indexViewStyle(.page(backgroundDisplayMode: .always))
             }
+            .tabViewStyle(.page(indexDisplayMode: .automatic))
+            .indexViewStyle(.page(backgroundDisplayMode: .always))
+            .padding(.horizontal, 16)
 
         case .error(let msg):
             VStack(spacing: 12) {
