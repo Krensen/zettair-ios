@@ -84,9 +84,6 @@ private struct BriefCardView: View {
     @State private var showingSafari: URL? = nil
 
     var body: some View {
-        // Simple first principles: every element inside the brief card
-        // gets horizontal breathing room from the screen edges. No card
-        // background, no nested layers — just a margin on the content.
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 hero
@@ -102,9 +99,12 @@ private struct BriefCardView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .padding(.horizontal, 20)
             .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        // Apply padding OUTSIDE the ScrollView so it survives whatever
+        // .tabViewStyle(.page) is doing to the inner layout.
+        .padding(.horizontal, 20)
         .sheet(item: Binding<IdentifiableURL?>(
             get: { showingSafari.map(IdentifiableURL.init) },
             set: { showingSafari = $0?.url }
